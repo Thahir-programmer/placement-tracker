@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thahirudeen.placementtracker.dto.ApplicationRequest;
 import com.thahirudeen.placementtracker.dto.ApplicationResponse;
+import com.thahirudeen.placementtracker.dto.ApplicationStatsResponse;
 import com.thahirudeen.placementtracker.entity.ApplicationStatus;
 import com.thahirudeen.placementtracker.service.ApplicationService;
 
@@ -47,6 +48,12 @@ public class ApplicationController {
 	@GetMapping("/{id}")
 	public ApplicationResponse get(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
 		return applicationService.get(userId(jwt), id);
+	}
+
+	// Spring prefers an exact path over a {variable}, so this wins over /{id} for GET /stats
+	@GetMapping("/stats")
+	public ApplicationStatsResponse stats(@AuthenticationPrincipal Jwt jwt) {
+		return applicationService.stats(userId(jwt));
 	}
 
 	@PutMapping("/{id}")

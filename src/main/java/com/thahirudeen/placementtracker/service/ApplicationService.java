@@ -1,6 +1,8 @@
 package com.thahirudeen.placementtracker.service;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.thahirudeen.placementtracker.dto.ApplicationRequest;
 import com.thahirudeen.placementtracker.dto.ApplicationResponse;
+import com.thahirudeen.placementtracker.dto.ApplicationStatsResponse;
 import com.thahirudeen.placementtracker.entity.Application;
 import com.thahirudeen.placementtracker.entity.ApplicationStatus;
 import com.thahirudeen.placementtracker.entity.User;
@@ -42,6 +45,19 @@ public class ApplicationService {
 				: applicationRepository.findByUserIdAndStatus(userId, status);
 
 		return applications.stream().map(ApplicationResponse::from).toList();
+	}
+
+	public ApplicationStatsResponse stats(Long userId) {
+		// Loops over the enum so every status appears, including those with 0 applications
+		Map<ApplicationStatus, Long> byStatus = new EnumMap<>(ApplicationStatus.class);
+		long total = 0;
+		for (ApplicationStatus status : ApplicationStatus.values()) {
+			long count = applicationRepository.countByUserIdAndStatus(userId, status);
+			byStatus.put(status, count);
+			total += count;
+		}
+
+		return new ApplicationStatsResponse(total, byStatus);
 	}
 
 	public ApplicationResponse get(Long userId, Long id) {
