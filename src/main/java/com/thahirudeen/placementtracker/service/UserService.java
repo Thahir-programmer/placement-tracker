@@ -1,6 +1,8 @@
 package com.thahirudeen.placementtracker.service;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,15 +16,21 @@ import com.thahirudeen.placementtracker.dto.UserResponse;
 import com.thahirudeen.placementtracker.entity.User;
 import com.thahirudeen.placementtracker.repository.UserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
+	private final String dummyPasswordHash;
+
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.jwtService = jwtService;
+		// Hashed with the real encoder so checking it costs the same as checking a real password
+		this.dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
+	}
 
 	public String register(RegisterRequest req) {
 		// BCrypt's limit is 72 bytes; @Size only counts characters
@@ -44,12 +52,18 @@ public class UserService {
 	}
 
 	public LoginResponse login(LoginRequest req) {
-		// Same error for both failures, so nobody can use login to find out which emails exist
-		User user = userRepository.findByEmail(req.getEmail())
-				.filter(found -> passwordEncoder.matches(req.getPassword(), found.getPassword()))
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+		Optional<User> user = userRepository.findByEmail(req.getEmail());
 
-		return new LoginResponse(jwtService.generateToken(user));
+		// Always run BCrypt, so unknown emails take as long as wrong passwords
+		String hash = user.map(User::getPassword).orElse(dummyPasswordHash);
+		boolean passwordMatches = passwordEncoder.matches(req.getPassword(), hash);
+
+		// Same error for both failures, so nobody can use login to find out which emails exist
+		if (user.isEmpty() || !passwordMatches) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+		}
+
+		return new LoginResponse(jwtService.generateToken(user.get()));
 	}
 
 	public UserResponse getUserById(Long id) {
