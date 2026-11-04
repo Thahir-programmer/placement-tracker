@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Dashboard | Placement Tracker</title>
+	<link rel="icon" href="data:,">
+	<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+	<header class="topbar">
+		<strong>Placement Tracker</strong>
+		<div class="topbar-user">
+			<span id="user-name"></span>
+			<button type="button" class="button" id="logout-button">Log out</button>
+		</div>
+	</header>
+
+	<main class="container">
+		<p class="message error" id="page-error" role="alert" hidden></p>
+
+		<section class="stats" aria-label="Application statistics">
+			<div class="stat"><span class="stat-value" id="stat-total">-</span><span class="stat-label">Total</span></div>
+			<div class="stat"><span class="stat-value" id="stat-APPLIED">-</span><span class="stat-label">Applied</span></div>
+			<div class="stat"><span class="stat-value" id="stat-ONLINE_TEST">-</span><span class="stat-label">Online Test</span></div>
+			<div class="stat"><span class="stat-value" id="stat-INTERVIEW">-</span><span class="stat-label">Interview</span></div>
+			<div class="stat"><span class="stat-value" id="stat-OFFER">-</span><span class="stat-label">Offer</span></div>
+			<div class="stat"><span class="stat-value" id="stat-REJECTED">-</span><span class="stat-label">Rejected</span></div>
+		</section>
+
+		<section class="toolbar">
+			<label class="inline-label">Status
+				<select id="status-filter">
+					<option value="">All</option>
+					<option value="APPLIED">Applied</option>
+					<option value="ONLINE_TEST">Online Test</option>
+					<option value="INTERVIEW">Interview</option>
+					<option value="OFFER">Offer</option>
+					<option value="REJECTED">Rejected</option>
+				</select>
+			</label>
+			<button type="button" class="button primary" id="add-button">Add application</button>
+		</section>
+
+		<div class="table-wrap">
+			<table>
+				<thead>
+					<tr>
+						<th>Company</th>
+						<th>Role</th>
+						<th>Package (LPA)</th>
+						<th>Applied</th>
+						<th>Status</th>
+						<th>Job link</th>
+						<th>Notes</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="applications-body"></tbody>
+			</table>
+		</div>
+		<p class="muted empty" id="empty-message" hidden>No applications to show.</p>
+	</main>
+
+	<dialog id="application-dialog">
+		<form id="application-form" class="form">
+			<h2 id="dialog-title">Add application</h2>
+			<p class="message error" id="form-error" role="alert" hidden></p>
+			<label>Company
+				<input type="text" id="field-companyName" maxlength="255" required>
+			</label>
+			<label>Role
+				<input type="text" id="field-role" maxlength="255" required>
+			</label>
+			<label>Package (LPA)
+				<input type="number" id="field-packageLpa" min="0" max="999.99" step="0.01">
+			</label>
+			<label>Applied date
+				<input type="date" id="field-appliedDate">
+			</label>
+			<label>Job link
+				<input type="url" id="field-jobLink" maxlength="500" placeholder="https://">
+			</label>
+			<label>Status
+				<select id="field-status">
+					<option value="APPLIED">Applied</option>
+					<option value="ONLINE_TEST">Online Test</option>
+					<option value="INTERVIEW">Interview</option>
+					<option value="OFFER">Offer</option>
+					<option value="REJECTED">Rejected</option>
+				</select>
+			</label>
+			<label>Notes
+				<textarea id="field-notes" rows="3"></textarea>
+			</label>
+			<div class="dialog-actions">
+				<button type="button" class="button" id="cancel-button">Cancel</button>
+				<button type="submit" class="button primary">Save</button>
+			</div>
+		</form>
+	</dialog>
+
+	<script src="/js/api.js"></script>
+	<script src="/js/dashboard.js"></script>
+</body>
+</html>

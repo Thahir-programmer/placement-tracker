@@ -55,6 +55,8 @@ public class SecurityConfig {
 						.requestMatchers("/api/auth/me").authenticated()
 						// /error must be open, or real errors get hidden behind a login failure
 						.requestMatchers("/api/auth/**", "/error").permitAll()
+						// Only the page files are public; the data they show still needs a token
+						.requestMatchers("/", "/index.html", "/dashboard.html", "/css/**", "/js/**").permitAll()
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 		return http.build();
